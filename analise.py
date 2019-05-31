@@ -37,6 +37,30 @@ def removerStopWords(words):
     stop_words = removeAccents(set(stopwords.words('portuguese')))
     return [word for word in words if not word in stop_words]
 
+def removeStemming(words):
+    porter = PorterStemmer()
+    return [porter.stem(word) for word in words]
+
+def removeNumbers(words):
+    for word in words:
+        for c in word:
+            if(c.isdigit()):
+                words.remove(word)
+                break
+    return words
+def removeRepeatChar(words):
+    new_words = []
+    for word in words:
+        new_word = ""
+        for c in word:
+            if(len(new_word)>1):
+                if(new_word[-1]!=c or new_word[-2]!=c):
+                    new_word+=c
+            else:
+                new_word+=c
+        new_words.append(new_word)
+    return new_words
+
 def tokenize(text):
     tokenizer = TweetTokenizer()
     return tokenizer.tokenize(text)
@@ -45,6 +69,10 @@ def preprocessarTexto(text):
     words = tokenize(text.lower())
     words = removePunctuation(words)
     words = removeAccents(words)
+    words = removeRepeatChar(words)
+    words = removeNumbers(words)
+    words = removerStopWords(words)
+    words = removeStemming(words)
     return " ".join(words)
 
 def CriaBaseDeDados():
@@ -105,15 +133,14 @@ def criaEntradasMetodo(base, vocabulario, indexSet):
     
     return (feature, saida)
 
-base = PreprocessarABase(CriaBaseDeDados())
-vocabulario = gerarVocabulario(base)
+def inicia():
+    base = PreprocessarABase(CriaBaseDeDados())
+    vocabulario = gerarVocabulario(base)
+    print(len(vocabulario))
+    treino = criaTreino(base)
+    teste = criaTeste(treino, base)
 
-treino = criaTreino(base)
-teste = criaTeste(treino, base)
-
-entrada = criaEntradasMetodo(base, vocabulario, treino)
-
-X = entrada[0]
-Y = entrada[1]
-
-print("OK")
+    entrada = criaEntradasMetodo(base, vocabulario, treino)
+    X_treino = entrada[0]
+    Y_treino = entrada[1]
+    return (vocabulario, X_treino, Y_treino, X_treino, X_treino)
