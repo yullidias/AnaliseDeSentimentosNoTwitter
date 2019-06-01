@@ -136,11 +136,15 @@ def criaEntradasMetodo(base, vocabulario, indexSet):
 def inicia():
     base = PreprocessarABase(CriaBaseDeDados())
     vocabulario = gerarVocabulario(base)
-    print(len(vocabulario))
     treino = criaTreino(base)
     teste = criaTeste(treino, base)
 
     entrada = criaEntradasMetodo(base, vocabulario, treino)
     X_treino = entrada[0]
     Y_treino = entrada[1]
-    return (vocabulario, X_treino, Y_treino, X_treino, X_treino)
+
+    entrada = criaEntradasMetodo(base, vocabulario, teste)
+    X_teste = entrada[0]
+    Y_teste = entrada[1]
+
+    return (vocabulario, X_treino, Y_treino, X_teste, Y_teste)
