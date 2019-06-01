@@ -15,13 +15,13 @@ from sklearn.feature_extraction.text import CountVectorizer
 nltk.download('punkt')
 nltk.download('stopwords')
 
-def lerRootDir():
+def readRootDir():
     try:
         with open('caminhoDiretorioTweets.txt', 'r') as f:
-            rootDir = f.read() 
-        if(rootDir.endswith('\n')):
-            rootDir = rootDir[:-1]
-        return rootDir
+            rootDir = f.read()
+            rootDir = rootDir[:-1] if rootDir.endswith("\n") else rootDir
+            return rootDir if rootDir.endswith('/') else rootDir + '/'
+        return None
     except Exception as e:
         print(e)
         return None
@@ -77,7 +77,7 @@ def preprocessarTexto(text):
 
 def CriaBaseDeDados():
     base = pd.DataFrame()
-    rootDir = lerRootDir()
+    rootDir = readRootDir()
     if rootDir != None:
         for file in os.listdir(rootDir):
             rootDir = rootDir if rootDir.endswith('/') else rootDir + '/'
@@ -87,7 +87,7 @@ def CriaBaseDeDados():
     else:
         print("Falha ao ler diretório raiz")
         return None
-    
+
 def PreprocessarABase(base):
     tweetsProcessados = {"TweetProcessado" : []}
     for indice, linha  in base.iterrows():
@@ -130,7 +130,7 @@ def criaEntradasMetodo(base, vocabulario, indexSet):
                 vetorFrequencia[int(index)] = bow[word]
         feature += [vetorFrequencia]
         saida += [dictTweet["Polaridade"]]
-    
+
     return (feature, saida)
 
 def inicia():
@@ -144,3 +144,5 @@ def inicia():
     X_treino = entrada[0]
     Y_treino = entrada[1]
     return (vocabulario, X_treino, Y_treino, X_treino, X_treino)
+
+print(readRootDir())
