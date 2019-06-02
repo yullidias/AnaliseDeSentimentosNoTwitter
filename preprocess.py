@@ -1,11 +1,11 @@
 import os
 import pandas as pd
-import nltk
-import pandas as pd
 import numpy as np
 import collections
 import random
+import matplotlib.pyplot as plt
 from enum import Enum, auto
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import RSLPStemmer
 from nltk.tokenize import TweetTokenizer
@@ -17,8 +17,10 @@ nltk.download('punkt')
 nltk.download('stopwords')
 
 class Tag(Enum):
-    DIGIT = 'DIGITO'
-    MONEY = 'DINHEIRO'
+    DIGIT = 'digito'
+    MONEY = 'dinheiro'
+    EMAIL = 'email'
+    URL = 'url'
 
 def readRootDir():
     try:
@@ -46,22 +48,26 @@ def wordStemmer(words):
     stemmer = RSLPStemmer()
     return [stemmer.stem(word) for word in words]
 
-def tagNumbers(words):
-    for count in range(len(words)):
-        if words[count].isdigit():
-            if count > 0 and words[count - 1] == '$':
-                if count > 1 and words[count - 2] == 'r':
-                    words[count - 2] = ''
-                    words[count - 1] = ''
-                    words[count] = Tag.MONEY.value
-                else:
-                    words[count - 1] = ''
-                    words[count] = Tag.MONEY.value
-            elif (count + 1) < len(words) and words[count + 1] == ('reais' or 'real'):
-                words[count : count + 2] = Tag.MONEY.value
-            else:
-                words[count] = Tag.DIGIT.value
-    return words
+def tagNumbers(text):
+    text = re.sub(r'[0-9]+([.,]?[0-9]+)?', Tag.DIGIT.value, text)
+    text = re.sub(r'r?\$[\s]*'+Tag.DIGIT.value, Tag.MONEY.value, text)
+    return text
+
+def tagDollar(text):
+    return re.sub(r'\$', Tag.DOLLAR.value, text)
+
+def tagURL(text):
+    return re.sub(r'https?:\/\/(www\.)?[0-9A-Za-z:%_\+.~#?&//=]+[^\s]{2,4}(\/[0-9A-Za-z:%_\+.~#?&//=]+)?', Tag.URL.value, text)
+
+def tagEmail(text):
+    return re.sub(r'[A-za-z0-9-._]+@[A-za-z]+\.[^\s]+', Tag.EMAIL.value, text)
+
+def preprocessBeforeTokenize(text):
+    text = tagURL(text)
+    text = tagEmail(text)
+    text = tagNumbers(text)
+    text = tagDollar(text)
+    return text
 
 def removeRepeatChar(words):
     new_words = []
@@ -81,7 +87,8 @@ def tokenize(text):
     return tokenizer.tokenize(text)
 
 def preprocessarTexto(text, isToRemoveStopWords, isToStemWords):
-    words = tokenize(text.lower())
+    text = preprocessBeforeTokenize(text.lower())
+    words = tokenize(text)
     words = removeAccents(words)
     words = tagNumbers(words)
     words = removePunctuation(words)
@@ -102,9 +109,10 @@ def getDataFromFiles():
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
             tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
             base = base.append(tweetsPD)
+            break
         return base
     else:
-        print("Falha ao ler diretório raiz")
+        print("Falha ao ler diretorio raiz")
         return None
 
 def preprocessBase(base, isToRemoveStopWords, isToStemWords):
@@ -118,7 +126,16 @@ def preprocessPolaridade(base):
         elif line['Polaridade']  > 1:
             base.at[index,'Polaridade'] = 1
 
-def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
+def plotData(base):
+    pos = base.loc[base['Polaridade'] == 1 ]
+    neg = base.loc[base['Polaridade'] == -1 ]
+    neu = base.loc[base['Polaridade'] == 0 ]
+    plt.scatter(pos.index.values, pos['Polaridade'], s=60, c='k', marker='+', linewidths=1)
+    plt.scatter(neg.index.values, neg['Polaridade'], s=60, c='k', marker='+', linewidths=1)
+    plt.scatter(neu.index.values, neu['Polaridade'], s=60, c='k', marker='+', linewidths=1)
+    plt.show()
+
+def preprocess(porcentagemTreino=0.6, isToRemoveStopWords=False, isToStemWords=False):
     base = getDataFromFiles()
     preprocessBase(base, isToRemoveStopWords, isToStemWords)
     preprocessPolaridade(base)
@@ -131,5 +148,6 @@ def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=F
     vectorizer.fit_transform(base["Tweet"])
     vocabularyTraining = vectorizer.transform(training["Tweet"])
     vocabularyTest = vectorizer.transform(test['Tweet'])
+
     del base
     return (vocabularyTraining, training, vocabularyTest, test)
