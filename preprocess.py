@@ -15,12 +15,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 nltk.download('punkt')
 nltk.download('stopwords')
+nltk.download('rslp')
 
 class Tag(Enum):
     DIGIT = 'digito'
     MONEY = 'dinheiro'
     EMAIL = 'email'
     URL = 'url'
+    RISOS = 'RISOS'
 
 def readRootDir():
     try:
@@ -69,6 +71,32 @@ def preprocessBeforeTokenize(text):
     text = tagDollar(text)
     return text
 
+def othersChanges(words):
+    for count in range(len(words)):
+        if words[count] == 'gnt':
+            words[count] = 'gente'
+        if words[count] == 'jnts':
+            words[count] = 'juntos'
+        if words[count] == 'q':
+            words[count] = 'que'
+        if words[count] == 'pra':
+            words[count] = 'para'
+        if words[count] == 'c':
+            words[count] = 'com'
+        if words[count] == 'vc':
+            words[count] = 'voce'
+        if words[count] == 's':
+            words[count] = 'sem'
+        if words[count] == 'd':
+            words[count] = 'de'
+        if words[count] == 'brazil':
+            words[count] = 'brasil'
+        if words[count] == 'hj':
+            words[count] = 'hoje'
+        if words[count] == 'haha' or words[count] == 'kk':
+            words[count] = Tag.RISOS.value
+    return words
+
 def removeRepeatChar(words):
     new_words = []
     for word in words:
@@ -93,11 +121,14 @@ def preprocessarTexto(text, isToRemoveStopWords, isToStemWords):
     words = tagNumbers(words)
     words = removePunctuation(words)
     words = removeRepeatChar(words)
+    words = others(words)
+
 
     if isToRemoveStopWords:
         words = removerStopWords(words)
     if isToStemWords:
         words = wordStemmer(words)
+
     return " ".join(words)
 
 def getDataFromFiles():
