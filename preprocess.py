@@ -22,7 +22,7 @@ class Tag(Enum):
     MONEY = 'dinheiro'
     EMAIL = 'email'
     URL = 'url'
-    RISOS = 'RISOS'
+    RISOS = 'risos'
 
 def readRootDir():
     try:
