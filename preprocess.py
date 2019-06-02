@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import collections
 import random
+import matplotlib.pyplot as plt
 from enum import Enum, auto
 from nltk.corpus import stopwords
 from nltk.stem import RSLPStemmer
@@ -13,8 +14,8 @@ from nltk.tokenize import RegexpTokenizer
 from unicodedata import normalize
 from sklearn.feature_extraction.text import CountVectorizer
 
-nltk.download('punkt')
-nltk.download('stopwords')
+# nltk.download('punkt')
+# nltk.download('stopwords')
 
 class Tag(Enum):
     DIGIT = 'DIGITO'
@@ -102,9 +103,10 @@ def getDataFromFiles():
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
             tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
             base = base.append(tweetsPD)
+            break
         return base
     else:
-        print("Falha ao ler diretório raiz")
+        print("Falha ao ler diretorio raiz")
         return None
 
 def preprocessBase(base, isToRemoveStopWords, isToStemWords):
@@ -118,7 +120,16 @@ def preprocessPolaridade(base):
         elif line['Polaridade']  > 1:
             base.at[index,'Polaridade'] = 1
 
-def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
+def plotData(base):
+    pos = base.loc[base['Polaridade'] == 1 ]
+    neg = base.loc[base['Polaridade'] == -1 ]
+    neu = base.loc[base['Polaridade'] == 0 ]
+    plt.scatter(pos.index.values, pos['Polaridade'], s=60, c='k', marker='+', linewidths=1)
+    plt.scatter(neg.index.values, neg['Polaridade'], s=60, c='k', marker='+', linewidths=1)
+    plt.scatter(neu.index.values, neu['Polaridade'], s=60, c='k', marker='+', linewidths=1)
+    plt.show()
+
+def preprocess(porcentagemTreino=0.6, isToRemoveStopWords=False, isToStemWords=False):
     base = getDataFromFiles()
     preprocessBase(base, isToRemoveStopWords, isToStemWords)
     preprocessPolaridade(base)
@@ -131,5 +142,18 @@ def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=F
     vectorizer.fit_transform(base["Tweet"])
     vocabularyTraining = vectorizer.transform(training["Tweet"])
     vocabularyTest = vectorizer.transform(test['Tweet'])
+
+
+
+    # from yellowbrick.text import FreqDistVisualizer #conda install -c districtdatalabs yellowbrick
+    # vectorizer = CountVectorizer(analyzer='word')
+    # docs       = vectorizer.fit_transform(base['Tweet'])
+    # features   = vectorizer.get_feature_names()
+    # visualizer = FreqDistVisualizer(features=features)
+    # visualizer.fit(docs)
+    # visualizer.poof()
+
+
+
     del base
     return (vocabularyTraining, training, vocabularyTest, test)
