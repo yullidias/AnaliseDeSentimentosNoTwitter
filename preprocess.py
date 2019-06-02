@@ -13,8 +13,8 @@ from nltk.tokenize import RegexpTokenizer
 from unicodedata import normalize
 from sklearn.feature_extraction.text import CountVectorizer
 
-#nltk.download('punkt')
-#nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('stopwords')
 
 class Tag(Enum):
     DIGIT = 'DIGITO'
@@ -100,7 +100,7 @@ def getDataFromFiles():
         for file in os.listdir(rootDir):
             tweetsPD = pd.ExcelFile(rootDir + file).parse()
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
-            tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype('U')
+            tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
             base = base.append(tweetsPD)
         return base
     else:
@@ -109,11 +109,19 @@ def getDataFromFiles():
 
 def preprocessBase(base, isToRemoveStopWords, isToStemWords):
     for index, line  in base.iterrows():
-        line["Tweet"] = preprocessarTexto(str(line["Tweet"]), isToRemoveStopWords, isToStemWords)
+        base.at[index,"Tweet"] = preprocessarTexto(str(line["Tweet"]), isToRemoveStopWords, isToStemWords)
+
+def preprocessPolaridade(base):
+    for index, line  in base.iterrows():
+        if line['Polaridade']  < -1:
+            base.at[index,'Polaridade'] = -1
+        elif line['Polaridade']  > 1:
+            base.at[index,'Polaridade'] = 1
 
 def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
     base = getDataFromFiles()
     preprocessBase(base, isToRemoveStopWords, isToStemWords)
+    preprocessPolaridade(base)
     base = base.sample(frac=1) #random the tweets
     size = int(porcentagemTreino * len(base))
     training = base[0 : size]
