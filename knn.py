@@ -2,6 +2,9 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
 import preprocess
+import sys
+
+k = int(sys.argv[1])
 
 #Preprocessing
 X_train, y_train, X_test, y_test = preprocess.preprocess()
@@ -11,7 +14,7 @@ print("Entradas Teste: "+str(len(y_test)))
 print("Entradas Totais: "+str(len(y_train)+len(y_test)))
 
 #Training and Predictions 
-classifier = KNeighborsClassifier(n_neighbors=3)  
+classifier = KNeighborsClassifier(n_neighbors=k)  
 classifier.fit(X_train, y_train['Polaridade']) 
 y_pred = classifier.predict(X_test)
 

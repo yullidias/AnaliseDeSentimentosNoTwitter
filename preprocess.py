@@ -13,12 +13,14 @@ from nltk.tokenize import RegexpTokenizer
 from unicodedata import normalize
 from sklearn.feature_extraction.text import CountVectorizer
 
-#nltk.download('punkt')
-#nltk.download('stopwords')
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('rslp')
 
 class Tag(Enum):
     DIGIT = 'DIGITO'
     MONEY = 'DINHEIRO'
+    RISOS = 'RISOS'
 
 def readRootDir():
     try:
@@ -63,6 +65,32 @@ def tagNumbers(words):
                 words[count] = Tag.DIGIT.value
     return words
 
+def othersChanges(words):
+    for count in range(len(words)):
+        if words[count] == 'gnt':
+            words[count] = 'gente'
+        if words[count] == 'jnts':
+            words[count] = 'juntos'
+        if words[count] == 'q':
+            words[count] = 'que'
+        if words[count] == 'pra':
+            words[count] = 'para'
+        if words[count] == 'c':
+            words[count] = 'com'
+        if words[count] == 'vc':
+            words[count] = 'voce'
+        if words[count] == 's':
+            words[count] = 'sem'
+        if words[count] == 'd':
+            words[count] = 'de'
+        if words[count] == 'brazil':
+            words[count] = 'brasil'
+        if words[count] == 'hj':
+            words[count] = 'hoje'
+        if words[count] == 'haha' or words[count] == 'kk':
+            words[count] = Tag.RISOS.value
+    return words
+
 def removeRepeatChar(words):
     new_words = []
     for word in words:
@@ -86,11 +114,14 @@ def preprocessarTexto(text, isToRemoveStopWords, isToStemWords):
     words = tagNumbers(words)
     words = removePunctuation(words)
     words = removeRepeatChar(words)
+    words = others(words)
+
 
     if isToRemoveStopWords:
         words = removerStopWords(words)
     if isToStemWords:
         words = wordStemmer(words)
+
     return " ".join(words)
 
 def getDataFromFiles():
@@ -100,7 +131,7 @@ def getDataFromFiles():
         for file in os.listdir(rootDir):
             tweetsPD = pd.ExcelFile(rootDir + file).parse()
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
-            tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype('U')
+            tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
             base = base.append(tweetsPD)
         return base
     else:
@@ -109,11 +140,19 @@ def getDataFromFiles():
 
 def preprocessBase(base, isToRemoveStopWords, isToStemWords):
     for index, line  in base.iterrows():
-        line["Tweet"] = preprocessarTexto(str(line["Tweet"]), isToRemoveStopWords, isToStemWords)
+        base.at[index,"Tweet"] = preprocessarTexto(str(line["Tweet"]), isToRemoveStopWords, isToStemWords)
+
+def preprocessPolaridade(base):
+    for index, line  in base.iterrows():
+        if line['Polaridade']  < -1:
+            base.at[index,'Polaridade'] = -1
+        elif line['Polaridade']  > 1:
+            base.at[index,'Polaridade'] = 1
 
 def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
     base = getDataFromFiles()
     preprocessBase(base, isToRemoveStopWords, isToStemWords)
+    preprocessPolaridade(base)
     base = base.sample(frac=1) #random the tweets
     size = int(porcentagemTreino * len(base))
     training = base[0 : size]
