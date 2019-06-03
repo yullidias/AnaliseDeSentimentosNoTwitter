@@ -6,23 +6,28 @@ import random
 import matplotlib.pyplot as plt
 from enum import Enum, auto
 import nltk
+import re
+import time
 from nltk.corpus import stopwords
 from nltk.stem import RSLPStemmer
 from nltk.tokenize import TweetTokenizer
 from nltk.tokenize import RegexpTokenizer
 from unicodedata import normalize
 from sklearn.feature_extraction.text import CountVectorizer
+from yellowbrick.text import FreqDistVisualizer #conda install -c districtdatalabs yellowbrick
+from yellowbrick.text import TSNEVisualizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('rslp')
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('rslp')
 
 class Tag(Enum):
     DIGIT = 'digito'
     MONEY = 'dinheiro'
     EMAIL = 'email'
     URL = 'url'
-    RISOS = 'risos'
+    RISOS = 'RISOS'
 
 def readRootDir():
     try:
@@ -55,21 +60,12 @@ def tagNumbers(text):
     text = re.sub(r'r?\$[\s]*'+Tag.DIGIT.value, Tag.MONEY.value, text)
     return text
 
-def tagDollar(text):
-    return re.sub(r'\$', Tag.DOLLAR.value, text)
 
 def tagURL(text):
     return re.sub(r'https?:\/\/(www\.)?[0-9A-Za-z:%_\+.~#?&//=]+[^\s]{2,4}(\/[0-9A-Za-z:%_\+.~#?&//=]+)?', Tag.URL.value, text)
 
 def tagEmail(text):
     return re.sub(r'[A-za-z0-9-._]+@[A-za-z]+\.[^\s]+', Tag.EMAIL.value, text)
-
-def preprocessBeforeTokenize(text):
-    text = tagURL(text)
-    text = tagEmail(text)
-    text = tagNumbers(text)
-    text = tagDollar(text)
-    return text
 
 def othersChanges(words):
     for count in range(len(words)):
@@ -79,10 +75,14 @@ def othersChanges(words):
             words[count] = 'juntos'
         if words[count] == 'q':
             words[count] = 'que'
+        if words[count] == 'p':
+            words[count] = 'para'
         if words[count] == 'pra':
             words[count] = 'para'
         if words[count] == 'c':
             words[count] = 'com'
+        if words[count] == 'n':
+            words[count] = 'nao'
         if words[count] == 'vc':
             words[count] = 'voce'
         if words[count] == 's':
@@ -96,6 +96,12 @@ def othersChanges(words):
         if words[count] == 'haha' or words[count] == 'kk':
             words[count] = Tag.RISOS.value
     return words
+
+def preprocessBeforeTokenize(text):
+    text = tagURL(text)
+    text = tagEmail(text)
+    text = tagNumbers(text)
+    return text
 
 def removeRepeatChar(words):
     new_words = []
@@ -118,11 +124,9 @@ def preprocessarTexto(text, isToRemoveStopWords, isToStemWords):
     text = preprocessBeforeTokenize(text.lower())
     words = tokenize(text)
     words = removeAccents(words)
-    words = tagNumbers(words)
     words = removePunctuation(words)
     words = removeRepeatChar(words)
-    words = others(words)
-
+    words = othersChanges(words)
 
     if isToRemoveStopWords:
         words = removerStopWords(words)
@@ -139,8 +143,7 @@ def getDataFromFiles():
             tweetsPD = pd.ExcelFile(rootDir + file).parse()
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
             tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
-            base = base.append(tweetsPD)
-            break
+            base = base.append(tweetsPD)            
         return base
     else:
         print("Falha ao ler diretorio raiz")
@@ -157,28 +160,50 @@ def preprocessPolaridade(base):
         elif line['Polaridade']  > 1:
             base.at[index,'Polaridade'] = 1
 
-def plotData(base):
-    pos = base.loc[base['Polaridade'] == 1 ]
-    neg = base.loc[base['Polaridade'] == -1 ]
-    neu = base.loc[base['Polaridade'] == 0 ]
-    plt.scatter(pos.index.values, pos['Polaridade'], s=60, c='k', marker='+', linewidths=1)
-    plt.scatter(neg.index.values, neg['Polaridade'], s=60, c='k', marker='+', linewidths=1)
-    plt.scatter(neu.index.values, neu['Polaridade'], s=60, c='k', marker='+', linewidths=1)
-    plt.show()
+def plotData(base, labels=[-1,0,1]):
+    vectorizer = CountVectorizer(lowercase=False)
+    tweets       = vectorizer.fit_transform(base['Tweet'])
+    tsne = TSNEVisualizer()
+    tsne.fit(tweets, labels)
+    tsne.poof()
 
-def preprocess(porcentagemTreino=0.6, isToRemoveStopWords=False, isToStemWords=False):
+def plotMostFrequentWords(base):
+    vectorizer = CountVectorizer(lowercase=False)
+    docs       = vectorizer.fit_transform(base['Tweet'])
+    features   = vectorizer.get_feature_names()
+    visualizer = FreqDistVisualizer(features=features)
+    visualizer.fit(docs)
+    visualizer.poof()
+
+def getTrainOrTest(base, class1, class2, sizeTraining):
+    resultfeature1 = base.loc[base['Polaridade'] == class1 ]
+    resultfeature2 = base.loc[base['Polaridade'] == class2 ]
+
+    sizeByFeature = int(sizeTraining / 2)
+    minSize = min(len(resultfeature1), len(resultfeature2))
+    size = minSize if minSize < sizeByFeature else sizeByFeature
+
+    result =               resultfeature1.head(size)
+    result = result.append(resultfeature2.head(size))
+    return result
+
+def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
     base = getDataFromFiles()
     preprocessBase(base, isToRemoveStopWords, isToStemWords)
     preprocessPolaridade(base)
-    base = base.sample(frac=1) #random the tweets
-    size = int(porcentagemTreino * len(base))
-    training = base[0 : size]
-    test = base[size : len(base)]
+    base.sample(frac=1, replace=True) #random the tweets
 
-    vectorizer = CountVectorizer(analyzer='word')
+    sizeTraining = int(porcentagemTreino * len(base))
+
+    training = getTrainOrTest(base, 1, -1, sizeTraining)
+    test = getTrainOrTest(base, 1, -1, len(base) - sizeTraining)
+
+    #min_df : float in range [0.0, 1.0] or int, default=1
+    #When building the vocabulary ignore terms that have a document frequency strictly lower than the given threshold.
+    vectorizer = CountVectorizer(lowercase=False, min_df=0.2)
     vectorizer.fit_transform(base["Tweet"])
     vocabularyTraining = vectorizer.transform(training["Tweet"])
-    vocabularyTest = vectorizer.transform(test['Tweet'])
+    vocabularyTest = vectorizer.transform(test["Tweet"])
 
     del base
     return (vocabularyTraining, training, vocabularyTest, test)
