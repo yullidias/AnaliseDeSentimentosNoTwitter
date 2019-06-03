@@ -143,8 +143,7 @@ def getDataFromFiles():
             tweetsPD = pd.ExcelFile(rootDir + file).parse()
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
             tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
-            base = base.append(tweetsPD)
-            # break
+            base = base.append(tweetsPD)            
         return base
     else:
         print("Falha ao ler diretorio raiz")
