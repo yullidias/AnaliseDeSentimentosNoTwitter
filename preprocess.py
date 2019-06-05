@@ -143,7 +143,7 @@ def getDataFromFiles():
             tweetsPD = pd.ExcelFile(rootDir + file).parse()
             tweetsPD['Tweet'] = tweetsPD['Tweet'].values.astype('U')
             tweetsPD['Polaridade'] = tweetsPD['Polaridade'].values.astype(int)
-            base = base.append(tweetsPD)            
+            base = base.append(tweetsPD)
         return base
     else:
         print("Falha ao ler diretorio raiz")
@@ -175,16 +175,19 @@ def plotMostFrequentWords(base):
     visualizer.fit(docs)
     visualizer.poof()
 
-def getTrainOrTest(base, class1, class2, sizeTraining):
-    resultfeature1 = base.loc[base['Polaridade'] == class1 ]
-    resultfeature2 = base.loc[base['Polaridade'] == class2 ]
+def getBalencedTrainFromHeadBase(base, class1, class2, sizeTraining):
+    base = base.head(sizeTraining)
+    resultfeature1 = base.loc[base['Polaridade'] == 1 ]
+    resultfeature2 = base.loc[base['Polaridade'] == -1 ]
+    resultfeature3 = base.loc[base['Polaridade'] == 0 ]
 
-    sizeByFeature = int(sizeTraining / 2)
-    minSize = min(len(resultfeature1), len(resultfeature2))
+    sizeByFeature = int(sizeTraining / 3)
+    minSize = min(len(resultfeature1), len(resultfeature2), len(resultfeature3))
     size = minSize if minSize < sizeByFeature else sizeByFeature
 
     result =               resultfeature1.head(size)
     result = result.append(resultfeature2.head(size))
+    result = result.append(resultfeature3.head(size))
     return result
 
 def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
@@ -195,8 +198,8 @@ def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=F
 
     sizeTraining = int(porcentagemTreino * len(base))
 
-    training = getTrainOrTest(base, 1, -1, sizeTraining)
-    test = getTrainOrTest(base, 1, -1, len(base) - sizeTraining)
+    training = getBalencedTrainFromHeadBase(base, 1, -1, sizeTraining)
+    test = base.tail(len(base) - sizeTraining)
 
     #min_df : float in range [0.0, 1.0] or int, default=1
     #When building the vocabulary ignore terms that have a document frequency strictly lower than the given threshold.
