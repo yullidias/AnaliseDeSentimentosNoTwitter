@@ -7,7 +7,7 @@ print(len(training.loc[training['Polaridade'] == 1 ]))
 print(len(training.loc[training['Polaridade'] == -1 ]))
 print(len(training.loc[training['Polaridade'] == 0 ]))
 
-classifier = svm.SVC(kernel='linear')
+classifier = svm.SVC(kernel='linear', decision_function_shape="ovo")
 classifier.fit(vocabularioTreino, training['Polaridade'])
 prediction = classifier.predict(vocabularioTest)
 
