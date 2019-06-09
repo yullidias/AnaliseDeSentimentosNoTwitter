@@ -168,7 +168,7 @@ def plotData(base, labels=[-1,0,1]):
     tsne.poof()
 
 def plotMostFrequentWords(base):
-    vectorizer = CountVectorizer(lowercase=False)
+    vectorizer = CountVectorizer(lowercase=False, max_df=0.7)
     docs       = vectorizer.fit_transform(base['Tweet'])
     features   = vectorizer.get_feature_names()
     visualizer = FreqDistVisualizer(features=features)
@@ -201,9 +201,10 @@ def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=F
     training = getBalencedTrainFromHeadBase(base, 1, -1, sizeTraining)
     test = base.tail(len(base) - sizeTraining)
 
+    plotMostFrequentWords(training)
     #min_df : float in range [0.0, 1.0] or int, default=1
     #When building the vocabulary ignore terms that have a document frequency strictly lower than the given threshold.
-    vectorizer = CountVectorizer(lowercase=False, min_df=0.2)
+    vectorizer = CountVectorizer(lowercase=False, max_features=4000)
     vectorizer.fit_transform(base["Tweet"])
     vocabularyTraining = vectorizer.transform(training["Tweet"])
     vocabularyTest = vectorizer.transform(test["Tweet"])

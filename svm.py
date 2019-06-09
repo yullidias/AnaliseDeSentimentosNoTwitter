@@ -2,7 +2,8 @@ import preprocess
 from sklearn import svm
 from sklearn.metrics import classification_report, confusion_matrix
 
-vocabularioTreino, training, vocabularioTest, test = preprocess.preprocess(isToStemWords=True)
+vocabularioTreino, training, vocabularioTest, test = preprocess.preprocess(isToRemoveStopWords=True)
+
 print(len(training.loc[training['Polaridade'] == 1 ]))
 print(len(training.loc[training['Polaridade'] == -1 ]))
 print(len(training.loc[training['Polaridade'] == 0 ]))
