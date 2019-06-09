@@ -190,7 +190,7 @@ def getBalencedTrainFromHeadBase(base, class1, class2, sizeTraining):
     result = result.append(resultfeature3.head(size))
     return result
 
-def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False):
+def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=False, min_df=0.2):
     base = getDataFromFiles()
     preprocessBase(base, isToRemoveStopWords, isToStemWords)
     preprocessPolaridade(base)
@@ -203,7 +203,7 @@ def preprocess(porcentagemTreino=0.7, isToRemoveStopWords=False, isToStemWords=F
 
     #min_df : float in range [0.0, 1.0] or int, default=1
     #When building the vocabulary ignore terms that have a document frequency strictly lower than the given threshold.
-    vectorizer = CountVectorizer(lowercase=False, min_df=0.2)
+    vectorizer = CountVectorizer(lowercase=False, min_df=min_df)
     vectorizer.fit_transform(base["Tweet"])
     vocabularyTraining = vectorizer.transform(training["Tweet"])
     vocabularyTest = vectorizer.transform(test["Tweet"])
