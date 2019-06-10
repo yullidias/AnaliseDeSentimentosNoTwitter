@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-myRange = [0.001,0.01,0.1,1,10,100]
+myRange = [0.001,0.01,0.1,1,10]
 
 def findBestC(): #encontrar o melhor valor para regularização#
     plt.title("Regressão Logística")
