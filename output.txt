@@ -1,0 +1,256 @@
+kernel= linear isToStemWords= True isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.44      0.92      0.59      1671
+           0       0.00      0.00      0.00      1010
+           1       0.29      0.08      0.13      1120
+
+   micro avg       0.43      0.43      0.43      3801
+   macro avg       0.24      0.33      0.24      3801
+weighted avg       0.28      0.43      0.30      3801
+
+[[1533    0  138]
+ [ 923    0   87]
+ [1029    0   91]]
+ --- END ---
+kernel= poly isToStemWords= True isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.50      0.00      0.00      1671
+           0       0.27      1.00      0.42      1010
+           1       0.00      0.00      0.00      1120
+
+   micro avg       0.27      0.27      0.27      3801
+   macro avg       0.26      0.33      0.14      3801
+weighted avg       0.29      0.27      0.11      3801
+
+[[   2 1666    3]
+ [   2 1007    1]
+ [   0 1120    0]]
+ --- END ---
+kernel= rbf isToStemWords= True isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.41      0.03      0.06      1671
+           0       0.26      0.88      0.41      1010
+           1       0.28      0.08      0.13      1120
+
+   micro avg       0.27      0.27      0.27      3801
+   macro avg       0.32      0.33      0.20      3801
+weighted avg       0.34      0.27      0.17      3801
+
+[[  57 1473  141]
+ [  38  884   88]
+ [  43  986   91]]
+ --- END ---
+kernel= sigmoid isToStemWords= True isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.43      0.12      0.19      1671
+           0       0.00      0.00      0.00      1010
+           1       0.29      0.88      0.44      1120
+
+   micro avg       0.31      0.31      0.31      3801
+   macro avg       0.24      0.33      0.21      3801
+weighted avg       0.28      0.31      0.21      3801
+
+[[ 198    0 1473]
+ [ 126    0  884]
+ [ 134    0  986]]
+ --- END ---
+kernel= linear isToStemWords= True isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.45      0.23      0.30      1671
+           0       0.33      0.00      0.01      1010
+           1       0.29      0.76      0.42      1120
+
+   micro avg       0.33      0.33      0.33      3801
+   macro avg       0.36      0.33      0.24      3801
+weighted avg       0.37      0.33      0.26      3801
+
+[[ 379    6 1286]
+ [ 206    4  800]
+ [ 263    2  855]]
+ --- END ---
+kernel= poly isToStemWords= True isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.45      0.02      0.04      1671
+           0       0.27      0.96      0.42      1010
+           1       0.31      0.02      0.04      1120
+
+   micro avg       0.27      0.27      0.27      3801
+   macro avg       0.34      0.34      0.17      3801
+weighted avg       0.36      0.27      0.14      3801
+
+[[  36 1599   36]
+ [  22  974   14]
+ [  22 1076   22]]
+ --- END ---
+kernel= rbf isToStemWords= True isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.45      0.16      0.23      1671
+           0       0.27      0.67      0.39      1010
+           1       0.31      0.20      0.25      1120
+
+   micro avg       0.31      0.31      0.31      3801
+   macro avg       0.34      0.34      0.29      3801
+weighted avg       0.36      0.31      0.28      3801
+
+[[ 265 1101  305]
+ [ 144  681  185]
+ [ 184  711  225]]
+ --- END ---
+kernel= sigmoid isToStemWords= True isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.44      0.63      0.52      1671
+           0       0.26      0.03      0.06      1010
+           1       0.29      0.33      0.31      1120
+
+   micro avg       0.38      0.38      0.38      3801
+   macro avg       0.33      0.33      0.30      3801
+weighted avg       0.35      0.38      0.33      3801
+
+[[1051   50  570]
+ [ 654   34  322]
+ [ 702   46  372]]
+ --- END ---
+kernel= linear isToStemWords= False isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.44      0.92      0.59      1671
+           0       0.00      0.00      0.00      1010
+           1       0.29      0.08      0.13      1120
+
+   micro avg       0.43      0.43      0.43      3801
+   macro avg       0.24      0.33      0.24      3801
+weighted avg       0.28      0.43      0.30      3801
+
+[[1533    0  138]
+ [ 923    0   87]
+ [1029    0   91]]
+ --- END ---
+kernel= poly isToStemWords= False isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.50      0.00      0.00      1671
+           0       0.27      1.00      0.42      1010
+           1       0.00      0.00      0.00      1120
+
+   micro avg       0.27      0.27      0.27      3801
+   macro avg       0.26      0.33      0.14      3801
+weighted avg       0.29      0.27      0.11      3801
+
+[[   2 1666    3]
+ [   2 1007    1]
+ [   0 1120    0]]
+ --- END ---
+kernel= rbf isToStemWords= False isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.41      0.03      0.06      1671
+           0       0.26      0.88      0.41      1010
+           1       0.28      0.08      0.13      1120
+
+   micro avg       0.27      0.27      0.27      3801
+   macro avg       0.32      0.33      0.20      3801
+weighted avg       0.34      0.27      0.17      3801
+
+[[  57 1473  141]
+ [  38  884   88]
+ [  43  986   91]]
+ --- END ---
+kernel= sigmoid isToStemWords= False isToRemoveStopWords= True 
+
+              precision    recall  f1-score   support
+
+          -1       0.43      0.12      0.19      1671
+           0       0.00      0.00      0.00      1010
+           1       0.29      0.88      0.44      1120
+
+   micro avg       0.31      0.31      0.31      3801
+   macro avg       0.24      0.33      0.21      3801
+weighted avg       0.28      0.31      0.21      3801
+
+[[ 198    0 1473]
+ [ 126    0  884]
+ [ 134    0  986]]
+ --- END ---
+kernel= linear isToStemWords= False isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.44      0.77      0.56      1671
+           0       0.33      0.00      0.01      1010
+           1       0.29      0.22      0.25      1120
+
+   micro avg       0.40      0.40      0.40      3801
+   macro avg       0.35      0.33      0.27      3801
+weighted avg       0.36      0.40      0.32      3801
+
+[[1283    7  381]
+ [ 780    4  226]
+ [ 876    1  243]]
+ --- END ---
+kernel= poly isToStemWords= False isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.43      0.55      0.49      1671
+           0       0.27      0.42      0.33      1010
+           1       0.31      0.02      0.04      1120
+
+   micro avg       0.36      0.36      0.36      3801
+   macro avg       0.34      0.33      0.29      3801
+weighted avg       0.35      0.36      0.31      3801
+
+[[927 701  43]
+ [571 421  18]
+ [640 453  27]]
+ --- END ---
+kernel= rbf isToStemWords= False isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.44      0.20      0.27      1671
+           0       0.27      0.68      0.39      1010
+           1       0.31      0.15      0.20      1120
+
+   micro avg       0.31      0.31      0.31      3801
+   macro avg       0.34      0.34      0.29      3801
+weighted avg       0.36      0.31      0.28      3801
+
+[[ 329 1105  237]
+ [ 181  688  141]
+ [ 232  720  168]]
+ --- END ---
+kernel= sigmoid isToStemWords= False isToRemoveStopWords= False 
+
+              precision    recall  f1-score   support
+
+          -1       0.44      0.63      0.52      1671
+           0       0.24      0.17      0.20      1010
+           1       0.28      0.16      0.20      1120
+
+   micro avg       0.37      0.37      0.37      3801
+   macro avg       0.32      0.32      0.31      3801
+weighted avg       0.34      0.37      0.34      3801
+
+[[1059  316  296]
+ [ 661  171  178]
+ [ 711  227  182]]
+ --- END ---
